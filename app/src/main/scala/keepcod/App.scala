@@ -5,8 +5,8 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 import org.apache.spark.rdd.RDD
-
-
+import org.apache.spark.sql.SaveMode
+import scala.util.matching.Regex
 object App {
 
   case class Estudiante(nombre:String,edad:Integer,sexo:String,calificacion:Integer)
@@ -148,5 +148,54 @@ object App {
                      .csv(path)
       dfcsvfile
  }
+
+ def WriteParquet():Unit={
+  import spark.implicits._ 
+  val df=Seq(
+    ("Elegante sonoras palabras que representa tu mirada fija en mi","2024"),
+    ("Como viento que sopla en la noche, a la sombra de las estrellas","2023"),
+    ("otro verso","2024")
+  ).toDF("texo","year")
+  df.write.mode(SaveMode.Overwrite).partitionBy("year").parquet("src/files/cervatsParquet")
+
+ }
+
+ def ReadParquet():Unit={
+    val d = spark.read.parquet("src/files/cervatsParquet")
+                    .filter(
+                      col("year") === "2024" &&
+                      !col("texo").contains("otro")
+                    
+                    ) 
+             
+      
+  println(d.show(truncate=false))
+ }
+
+ def UdfRegex(cadena:String):String={
+     val datePattern: Regex = """\[(\d{2}/[A-Za-z]{3}/\d{4}):.*\]""".r 
+     val result = datePattern.findFirstMatchIn(cadena).map(_.group(1))
+     result.getOrElse("Fecha no Encontrada")
+     
+ } 
+
+ def Readsparkcsv():Unit={
+  import spark.implicits._
+   val in = spark.read
+                     .option("header", "false")
+                      .option("inferSchema", "false")
+                      .csv("src/files/apache.access.log")
+                      .toDF("raw_log") 
+  val dffinal =in  
+   .withColumn("url", regexp_extract(col("raw_log"),"""^(\S+)""", 1))
+   .withColumn("timestamp", regexp_extract(col("raw_log"), """\[(\d{2}/[A-Za-z]{3}/\d{4}:\d{2}:\d{2}:\d{2} [+-]\d{4})\]""", 1))
+   .withColumn("peticion", regexp_extract(col("raw_log"), """\"[A-Z]+\s+\S+\s+HTTP/\d\.\d\"\s+""", 0))
+   .withColumn("statusCode", regexp_extract(col("raw_log"),  """\s+(\d{3})\s""" , 1))
+   .withColumn("tiempoRespuesta", regexp_extract(col("raw_log"), """ (\d+)$""", 1))
+   dffinal.show() 
+      
+}
+
+  
 
 }

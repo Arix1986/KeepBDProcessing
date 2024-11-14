@@ -1,11 +1,9 @@
 # KeepBDProcessing
 MODULO Big Data Processing SCALA || SPARK
 
-## TEST:
-Crear un DataFrame y realiza operaciones básicas ,Pregunta: Crea un DataFrame a partir de una secuencia de tuplas 
+## Exercise 1 : Crear un DataFrame y realiza operaciones básicas
+Pregunta: Crea un DataFrame a partir de una secuencia de tuplas 
 que contenga información sobre estudiantes (nombre, edad, calificación). Realiza las siguientes operaciones:
-
-## Exercise 1
 
 a- Muestra el esquema del DataFrame.
 
@@ -42,3 +40,7 @@ y calcula el ingreso total (cantidad * precio_unitario) por producto.
 
 ![DF archivos](assets/ejercicio7.png)
 
+
+## TEST : Test para las funciones implementadas
+
+![TEST](assets/test.png)
